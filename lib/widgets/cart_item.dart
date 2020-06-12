@@ -47,7 +47,7 @@ class CartItem extends StatelessWidget {
                         padding: EdgeInsets.all(5), child: Text('\$$price'))),
               ),
               title: Text(title),
-              subtitle: Text('Total: \$${(price * quantity)}'),
+              subtitle: Text('Total: R${(price * quantity)}'),
               trailing: Text('$quantity x'),
             ),
           )),
