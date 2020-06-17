@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/product.dart';
+import '../providers/products.dart';
+import 'package:provider/provider.dart';
 
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit-product';
@@ -35,6 +37,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
+      if ((!_imageUrlController.text.startsWith('http') &&
+              !_imageUrlController.text.startsWith('https')) ||
+          (!_imageUrlController.text.startsWith('http') &&
+              !_imageUrlController.text.startsWith('https')) ||
+          (!_imageUrlController.text.endsWith('jpeg') &&
+              !_imageUrlController.text.endsWith('png') &&
+              !_imageUrlController.text.endsWith('jpg') &&
+              !_imageUrlController.text.endsWith('gif'))) {
+        return;
+      }
       setState(() {});
     }
   }
@@ -45,11 +57,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState.save();
-    //print(_editedProduct.id);
-    print(_editedProduct.title);
-    print(_editedProduct.description);
-    print(_editedProduct.price);
-    print(_editedProduct.imageUrl);
+    Provider.of<Products>(context, listen: false).addproduct(_editedProduct);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -188,19 +197,22 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 price: _editedProduct.price,
                                 imageUrl: value);
                           },
-                          
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please provide an image Url';
-                    }
-                    if (!value.startsWith('http') && !value.startsWith('https')) {
-                      return 'Enter a vlid Url';
-                    }
-                    if(!value.endsWith('jpeg') && !value.endsWith('png') && !value.endsWith('jpg') && !value.endsWith('gif')){
-                    return 'Enter a vlid Url';
-                    }                    
-                    return null;
-                  },
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please provide an image Url';
+                            }
+                            if (!value.startsWith('http') &&
+                                !value.startsWith('https')) {
+                              return 'Enter a vlid Url';
+                            }
+                            if (!value.endsWith('jpeg') &&
+                                !value.endsWith('png') &&
+                                !value.endsWith('jpg') &&
+                                !value.endsWith('gif')) {
+                              return 'Enter a vlid Url';
+                            }
+                            return null;
+                          },
                         ),
                       )
                     ])
