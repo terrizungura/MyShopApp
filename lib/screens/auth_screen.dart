@@ -1,8 +1,10 @@
 import 'dart:math';
 
+import 'package:MyShop/models/http_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.dart';
+import '../models/http_exception.dart';
 
 enum AuthMode { Signup, Login }
 
@@ -102,6 +104,23 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
+  void _showErrorDialog(String message){
+    showDialog(
+      context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('Error occured'),
+      content: Text(message),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: (){
+          Navigator.of(ctx).pop();
+        }, child: Text('Okay'),
+        ),
+      ],
+    ),
+    );
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState.validate()) {
       // Invalid!
@@ -111,7 +130,8 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
+    try{
+      if (_authMode == AuthMode.Login) {
       // Log user in
       await Provider.of<Auth>(context, listen: false).login(
         _authData['email'],
@@ -124,6 +144,20 @@ class _AuthCardState extends State<AuthCard> {
         _authData['password'],
       );
     }
+
+    } on HttpException catch(error){
+      var errorMessage = 'Authentication failed';
+      if(error.toString().contains('EMAILS_EXISTS')){
+        errorMessage = 'Email already exists';
+      }
+
+      _showErrorDialog(errorMessage);
+
+    } catch(error){
+      const errorMessage = 'Could not authenticate you, please try again later';
+      _showErrorDialog(errorMessage);
+    }
+
     setState(() {
       _isLoading = false;
     });
